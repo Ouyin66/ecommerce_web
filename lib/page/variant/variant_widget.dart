@@ -7,6 +7,7 @@ import '../../config/const.dart';
 import '../../main.dart';
 import 'add_variant.dart';
 import 'package:flutter_avif/flutter_avif.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class VariantWidget extends StatefulWidget {
   final Product product;
@@ -71,44 +72,52 @@ class _VariantWidgetState extends State<VariantWidget> with RouteAware {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.maxFinite,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: branchColor.withOpacity(0.64),
+              ),
+              child: Text(
                 "Danh sách sản phẩm biến thể",
-                style: heading2,
+                style: GoogleFonts.barlow(
+                  color: whiteColor,
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              const SizedBox(height: 10),
-              _buildAddButton(context),
-              const SizedBox(height: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  PaginatedDataTable(
-                    headingRowColor: MaterialStateProperty.resolveWith(
-                        (states) => Colors.grey.shade200),
-                    columns: [
-                      DataColumn(label: Text('ID', style: column)),
-                      DataColumn(label: Text('proudctID', style: column)),
-                      DataColumn(label: Text('sizeID', style: column)),
-                      DataColumn(label: Text('colorID', style: column)),
-                      DataColumn(label: Text('Giá', style: column)),
-                      DataColumn(label: Text('Số lượng', style: column)),
-                      DataColumn(label: Text('Hình ảnh', style: column)),
-                      DataColumn(label: Text('Ngày tạo', style: column)),
-                    ],
-                    source: _VariantDataSource(lst),
-                    rowsPerPage: 5, // Số dòng mỗi trang
-                    sortColumnIndex: 0,
-                    // sortAscending: sortAscending,
-                  ),
-                ],
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 10),
+            _buildAddButton(context),
+            const SizedBox(height: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                PaginatedDataTable(
+                  headingRowColor: MaterialStateProperty.resolveWith(
+                      (states) => Colors.grey.shade200),
+                  columns: [
+                    DataColumn(label: Text('ID', style: column)),
+                    DataColumn(label: Text('proudctID', style: column)),
+                    DataColumn(label: Text('sizeID', style: column)),
+                    DataColumn(label: Text('colorID', style: column)),
+                    DataColumn(label: Text('Giá', style: column)),
+                    DataColumn(label: Text('Số lượng', style: column)),
+                    DataColumn(label: Text('Hình ảnh', style: column)),
+                    DataColumn(label: Text('Ngày tạo', style: column)),
+                  ],
+                  source: _VariantDataSource(lst),
+                  rowsPerPage: 5, // Số dòng mỗi trang
+                  sortColumnIndex: 0,
+                  // sortAscending: sortAscending,
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

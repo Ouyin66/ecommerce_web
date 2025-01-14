@@ -75,13 +75,16 @@ class _AddProductFormState extends State<AddProductForm> {
     return Scaffold(
       backgroundColor: whiteColor,
       appBar: AppBar(
-        backgroundColor: whiteColor,
+        backgroundColor: branchColor,
+        elevation: 4.0,
         title: Text(
           "Thêm sản phẩm",
           style: GoogleFonts.barlow(
+            color: whiteColor,
             fontWeight: FontWeight.bold,
           ),
         ),
+        iconTheme: const IconThemeData(color: whiteColor),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

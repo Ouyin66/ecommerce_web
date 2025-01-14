@@ -236,7 +236,7 @@ class _ProductDataSource extends DataTableSource {
                         horizontal: 30, vertical: 40),
                     color: Colors.white,
                     child: DetailProductWidget(
-                      product: product,
+                      productId: product.id!,
                     ),
                   ),
                 ),

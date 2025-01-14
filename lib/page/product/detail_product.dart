@@ -1,9 +1,5 @@
-import 'package:ecommerce_web/api/api_picture.dart';
 import 'package:ecommerce_web/api/api_product.dart';
-import 'package:ecommerce_web/api/api_variant.dart';
-import 'package:ecommerce_web/model/picture.dart';
 import 'package:ecommerce_web/model/product.dart';
-import 'package:ecommerce_web/model/variant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -16,11 +12,11 @@ import '../../main.dart';
 import '../../model/category.dart';
 import '../../model/gender.dart';
 import '../picture/picture_widget.dart';
-import '../variant/variant_wdiget.dart';
+import '../variant/variant_widget.dart';
 
 class DetailProductWidget extends StatefulWidget {
-  final Product product;
-  const DetailProductWidget({super.key, required this.product});
+  final int productId;
+  const DetailProductWidget({super.key, required this.productId});
 
   @override
   State<DetailProductWidget> createState() => _DetailProductWidgetState();
@@ -35,6 +31,10 @@ class _DetailProductWidgetState extends State<DetailProductWidget>
   final _discountController = TextEditingController();
   // final _stateController = TextEditingController();
   final _descriptionController = TextEditingController();
+  var amount;
+  var state;
+
+  bool _isLoading = true;
 
   int _selectedCategory = 0;
   int _selectedGender = 0;
@@ -44,7 +44,19 @@ class _DetailProductWidgetState extends State<DetailProductWidget>
 
   bool _isEdit = false;
 
-  void getData() async {
+  Future<void> getData() async {
+    var responsePro = await APIProduct().Get(widget.productId);
+    if (responsePro != null) {
+      product = responsePro;
+      _selectedCategory = product.categoryID!;
+      _selectedGender = product.genderID!;
+      _nameController.text = product.name!;
+      _descriptionController.text = product.describe!;
+      _priceController.text = product.price.toString();
+      _discountController.text = product.discount.toString();
+      amount = product.amount;
+      state = product.state;
+    }
     var responseCate = await APICategory().GetList();
     var responseGen = await APIGender().GetList();
     // var responseVar = await APIVariant().GetVariantByProduct(product.id!);
@@ -52,15 +64,6 @@ class _DetailProductWidgetState extends State<DetailProductWidget>
     responseCate != [] ? lstCategory = List.from(responseCate!) : lstCategory;
     responseGen != [] ? lstGender = List.from(responseGen!) : lstGender;
     setState(() {});
-  }
-
-  void getProduct() async {
-    var response = await APIProduct().Get(product.id!);
-    if (response != null) {
-      setState(() {
-        product = response;
-      });
-    }
   }
 
   Product saveProduct() => Product(
@@ -80,7 +83,7 @@ class _DetailProductWidgetState extends State<DetailProductWidget>
     var response = await APIProduct().Update(product);
     if (response?.product != null || response?.successMessage != null) {
       showToast(context, "Cập nhật thành công thành công");
-      getProduct();
+      getData();
       setState(() {
         _isEdit = false;
       });
@@ -92,15 +95,19 @@ class _DetailProductWidgetState extends State<DetailProductWidget>
   @override
   void initState() {
     super.initState();
-    product = widget.product;
-    _selectedCategory = product.categoryID!;
-    _selectedGender = product.genderID!;
-    _nameController.text = product.name!;
-    _descriptionController.text = product.describe!;
-    _priceController.text = product.price.toString();
-    _discountController.text = product.discount.toString();
-    getData();
-    getProduct();
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    await getData();
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -111,7 +118,6 @@ class _DetailProductWidgetState extends State<DetailProductWidget>
       MainApp.routeObserver.subscribe(this, route);
     }
     getData();
-    getProduct();
   }
 
   @override
@@ -125,12 +131,12 @@ class _DetailProductWidgetState extends State<DetailProductWidget>
 
   @override
   Widget build(BuildContext context) {
-    return lstCategory.isEmpty || lstGender.isEmpty
+    return _isLoading
         ? LoadingScreen()
         : Scaffold(
             backgroundColor: whiteColor,
             appBar: AppBar(
-              backgroundColor: whiteColor,
+              backgroundColor: branchColor,
               elevation: 4.0,
               title: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -138,6 +144,7 @@ class _DetailProductWidgetState extends State<DetailProductWidget>
                   Text(
                     "Chi tiết sản phẩm",
                     style: GoogleFonts.barlow(
+                      color: whiteColor,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -146,19 +153,20 @@ class _DetailProductWidgetState extends State<DetailProductWidget>
                     width: 60.0,
                     height: 30.0,
                     value: _isEdit,
-                    activeColor: branchColor,
-                    inactiveColor: Colors.grey,
+                    activeColor: Colors.green,
+                    inactiveColor: greyColor,
                     toggleSize: 25.0,
-                    activeIcon: const Icon(Icons.edit, color: branchColor),
+                    activeIcon: const Icon(Icons.edit, color: Colors.green),
                     inactiveIcon: const Icon(Icons.edit, color: greyColor),
                     onToggle: (val) {
                       setState(() {
                         _isEdit = val;
                       });
                     },
-                  )
+                  ),
                 ],
               ),
+              iconTheme: const IconThemeData(color: whiteColor),
             ),
             body: Padding(
               padding: const EdgeInsets.all(10),
@@ -174,7 +182,7 @@ class _DetailProductWidgetState extends State<DetailProductWidget>
                         children: [
                           Expanded(
                             flex: 6,
-                            child: _buildBoxInformation(),
+                            child: _buildBoxInformation(context),
                           ),
                           // const Spacer(),
                           const VerticalDivider(
@@ -189,7 +197,7 @@ class _DetailProductWidgetState extends State<DetailProductWidget>
                       ),
                     ),
                     const SizedBox(
-                      height: 5,
+                      height: 20,
                     ),
                     ConstrainedBox(
                       constraints: const BoxConstraints(
@@ -207,7 +215,7 @@ class _DetailProductWidgetState extends State<DetailProductWidget>
     return PictureWidget(product: product);
   }
 
-  Widget _buildBoxInformation() {
+  Widget _buildBoxInformation(BuildContext context) {
     return Form(
       key: _formKey,
       child: Column(
@@ -233,7 +241,7 @@ class _DetailProductWidgetState extends State<DetailProductWidget>
               const Spacer(),
               Expanded(
                 flex: 4,
-                child: _buildInformation("Tồn kho:", null, "${product.amount}",
+                child: _buildInformation("Tồn kho:", null, "${amount ?? 0}",
                     isView: true),
               ),
             ],
@@ -258,8 +266,7 @@ class _DetailProductWidgetState extends State<DetailProductWidget>
               const Spacer(),
               Expanded(
                 flex: 4,
-                child: _buildInformation(
-                    "Trạng thái:", null, "${product.state}",
+                child: _buildInformation("Trạng thái:", null, "${state ?? 0}",
                     isView: true),
               ),
             ],

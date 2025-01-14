@@ -5,7 +5,6 @@ import 'package:ecommerce_web/api/api_size.dart';
 import 'package:ecommerce_web/model/color.dart';
 import 'package:ecommerce_web/model/size.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:ecommerce_web/api/api_gender.dart';
 import 'package:ecommerce_web/api/api_variant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +12,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../config/const.dart';
 import '../../model/product.dart';
 import 'package:flutter_avif/flutter_avif.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AddVariantForm extends StatefulWidget {
   final Product product;

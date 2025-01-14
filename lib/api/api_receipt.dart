@@ -5,7 +5,31 @@ import 'package:http/http.dart' as http;
 import '../api/api.dart';
 
 class APIReceipt extends APIRepository {
-  Future<Receipt?> GetReceipt(int receiptId) async {
+  Future<List<Receipt>?> GetList() async {
+    try {
+      Uri uri = Uri.parse("$baseurl/Receipt/GetList");
+
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+
+        List<Receipt> receipts = (data['receipts'] as List)
+            .map((receiptJson) => Receipt.fromJson(receiptJson))
+            .toList();
+
+        return receipts;
+      } else {
+        print("Lỗi khi lấy danh sách hóa đơn: ${response.statusCode}");
+        return null;
+      }
+    } catch (e) {
+      print("Lỗi: $e");
+      return null;
+    }
+  }
+
+  Future<Receipt?> Get(int receiptId) async {
     try {
       Uri uri = Uri.parse("$baseurl/Receipt/Get").replace(queryParameters: {
         'receiptId': receiptId.toString(),
